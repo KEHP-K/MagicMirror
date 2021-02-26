@@ -13,6 +13,10 @@ var helmet = require("helmet");
 
 var Log = require("./logger.js");
 var Utils = require("./utils.js");
+//
+var GPIO=require("onoff").Gpio;
+var button = require("./button");
+var led = new GPIO(24, 'out');
 
 var Server = function (config, callback) {
 	var port = config.port;
@@ -59,6 +63,8 @@ var Server = function (config, callback) {
 		app.use(directory, express.static(path.resolve(global.root_path + directory)));
 	}
 
+	app.use(button);
+
 	app.get("/version", function (req, res) {
 		res.send(global.version);
 	});
@@ -78,6 +84,14 @@ var Server = function (config, callback) {
 		html = html.replace("#CONFIG_FILE#", configFile);
 
 		res.send(html);
+	});
+
+	app.get("/on", function(req,res,next){
+		led.writeSync(1);
+	});
+
+	app.get("/off", function(req,res,next){
+		led.writeSync(1);
 	});
 
 	if (typeof callback === "function") {
